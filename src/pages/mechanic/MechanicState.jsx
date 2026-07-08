@@ -235,6 +235,16 @@ export function MechanicProvider({ children }) {
     setJobStatus(0);
   };
 
+  // Trigger Sweeper periodically
+  useEffect(() => {
+    if (isOnline) {
+      const sweeperInterval = setInterval(() => {
+        fetch('/api/sweeper').catch(e => console.error(e));
+      }, 60000);
+      return () => clearInterval(sweeperInterval);
+    }
+  }, [isOnline]);
+
   return (
     <MechanicContext.Provider value={{
       partnerType, setPartnerType,
