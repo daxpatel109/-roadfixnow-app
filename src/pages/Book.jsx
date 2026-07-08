@@ -246,7 +246,7 @@ export default function Book() {
       
       if (!currentReqId) throw new Error("Missing request ID");
 
-      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const API_BASE = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${API_BASE}/api/create-razorpay-order`, {
         method: 'POST',
         headers: { 
@@ -270,7 +270,7 @@ export default function Book() {
         handler: async function (response) {
           // 3. Verify on backend
           try {
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const API_BASE = import.meta.env.VITE_API_URL || '';
             const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay-payment`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
