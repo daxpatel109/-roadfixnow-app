@@ -61,7 +61,7 @@ export default function Login() {
         }
       }
     } catch (err) {
-      setError(typeof err === 'object' ? JSON.stringify(err) : err.message || 'Failed to authenticate');
+      setError(err?.message || (typeof err === 'object' ? JSON.stringify(err) : 'Failed to authenticate'));
     } finally {
       setLoading(false);
     }
