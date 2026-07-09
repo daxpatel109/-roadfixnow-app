@@ -9,7 +9,7 @@ const FullScreenLoader = () => (
   </div>
 );
 
-export function CustomerRoute({ children }) {
+export function AnyAuthRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -17,6 +17,26 @@ export function CustomerRoute({ children }) {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+export function StrictCustomerRoute({ children }) {
+  const { user, role, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <FullScreenLoader />;
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  if (role !== 'customer') {
+    // If they are a mechanic, send them to mechanic dashboard
+    if (role === 'mechanic') return <Navigate to="/dashboard/mechanic" replace />;
+    if (role === 'admin') return <Navigate to="/dashboard/admin" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

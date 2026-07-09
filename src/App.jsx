@@ -8,7 +8,7 @@ import { Pricing, HowItWorks, Partner, Cities, Services, ServiceDetail, About, C
 import Login from './pages/Login'; // Will rename/split later
 import { AuthProvider } from './context/AuthContext';
 import 'leaflet/dist/leaflet.css';
-import { CustomerRoute, PartnerRoute, AdminRoute } from './components/ProtectedRoute';
+import { StrictCustomerRoute, AnyAuthRoute, PartnerRoute, AdminRoute } from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
 
 import { 
@@ -159,7 +159,7 @@ export default function App() {
           {/* PORTAL 1: CUSTOMER (Has global Navbar) */}
           <Route element={<CustomerShell />}>
             <Route path="/" element={<Home />} />
-            <Route path="/book" element={<CustomerRoute><Book /></CustomerRoute>} />
+            <Route path="/book" element={<AnyAuthRoute><Book /></AnyAuthRoute>} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/partner" element={<Partner />} />
@@ -171,7 +171,7 @@ export default function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/login" element={<Login />} />
             {/* The Customer Dashboard */}
-            <Route path="/dashboard/customer" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />
+            <Route path="/dashboard/customer" element={<StrictCustomerRoute><CustomerDashboard /></StrictCustomerRoute>} />
           </Route>
 
           {/* PORTAL 2: PARTNER (Mechanic Layout handles its own Nav) */}
