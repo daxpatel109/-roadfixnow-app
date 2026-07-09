@@ -7,6 +7,8 @@ import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { notificationService } from '../../services/notificationService';
+import { BellRing } from 'lucide-react';
 
 const customMarkerIcon = new L.divIcon({
   className: 'custom-div-icon',
@@ -21,6 +23,21 @@ export function MechanicOverview() {
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({ earnings: 0, completed: 0, rating: 4.8, acceptance: 94 });
+  const [alertsEnabled, setAlertsEnabled] = useState(false);
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setAlertsEnabled(Notification.permission === 'granted');
+    }
+  }, []);
+
+  const handleEnableAlerts = async () => {
+    const granted = await notificationService.requestBrowserPermission();
+    setAlertsEnabled(granted);
+    if (granted) {
+      notificationService.showBrowserNotification("Alerts Enabled", "You will now receive notifications for new jobs.");
+    }
+  };
 
   useEffect(() => {
     async function fetchStats() {
@@ -43,12 +60,22 @@ export function MechanicOverview() {
     <div className="max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h1 className="text-3xl font-black text-white">Dashboard Overview</h1>
-        <button 
-          onClick={() => setIsOnline(!isOnline)}
-          className={`px-6 py-3 rounded-xl font-black transition-all shadow-lg ${isOnline ? 'bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30' : 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:bg-green-600'}`}
-        >
-          {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
-        </button>
+        <div className="flex items-center gap-4">
+          {!alertsEnabled && (
+            <button 
+              onClick={handleEnableAlerts}
+              className="px-4 py-3 rounded-xl font-bold bg-white/10 text-white hover:bg-white/20 transition-colors flex items-center gap-2"
+            >
+              <BellRing size={18} /> Enable Job Alerts
+            </button>
+          )}
+          <button 
+            onClick={() => setIsOnline(!isOnline)}
+            className={`px-6 py-3 rounded-xl font-black transition-all shadow-lg ${isOnline ? 'bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30' : 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:bg-green-600'}`}
+          >
+            {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
+          </button>
+        </div>
       </div>
 
       {!isOnline && (
@@ -364,6 +391,9 @@ export function MechanicActiveJob() {
               <div>
                 <p className="font-bold text-white text-lg">{activeJob.customer}</p>
                 <p className="text-sm text-gray-400">{activeJob.loc}</p>
+                {activeJob.customerPhone && (
+                  <p className="text-xs text-orange mt-1 font-bold tracking-widest">{activeJob.customerPhone}</p>
+                )}
               </div>
             </div>
             <div className="flex gap-2">

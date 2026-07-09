@@ -6,13 +6,21 @@ const supabase = createClient(
 );
 
 async function clearDB() {
-  const { data, error } = await supabase
-    .from('repair_requests')
-    .delete()
-    .neq('status', 'ignore_me'); // delete everything
+  console.log("Clearing all transactional data...");
+  
+  // 1. Delete all notifications
+  const { error: err1 } = await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (err1) console.error("Error clearing notifications:", err1);
 
-  if (error) console.error(error);
-  else console.log("Successfully cleared all fake data!");
+  // 2. Delete all repair requests (this cascades to dispatch_attempts, payments, settlements)
+  const { error: err2 } = await supabase.from('repair_requests').delete().neq('status', 'ignore_me');
+  if (err2) console.error("Error clearing requests:", err2);
+
+  // 3. Reset mechanic locations
+  const { error: err3 } = await supabase.from('mechanic_locations').delete().neq('availability_status', 'ignore_me');
+  if (err3) console.error("Error clearing locations:", err3);
+
+  console.log("Successfully cleared all test data! The database is now empty.");
 }
 
 clearDB();

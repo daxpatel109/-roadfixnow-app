@@ -2,9 +2,12 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useMechanic, mechanicTypes } from './MechanicState';
 import { Home, List, Navigation2, IndianRupee, User, Menu } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../../components/NotificationBell';
 
 export default function MechanicLayout() {
   const { partnerType, setPartnerType, isOnline } = useMechanic();
+  const { user } = useAuth();
   const location = useLocation();
 
   const navItems = [
@@ -47,13 +50,14 @@ export default function MechanicLayout() {
         <div className="w-64 bg-[#050810] border-r border-white/10 p-6 flex-shrink-0 hidden md:flex md:flex-col pt-8">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-black text-white text-xl border-2 border-navy">{partnerType.name.charAt(0)}</div>
-            <div>
-              <h3 className="text-white font-bold truncate w-32" title={partnerType.name}>{partnerType.name}</h3>
+            <div className="flex-1">
+              <h3 className="text-white font-bold truncate w-24" title={partnerType.name}>{partnerType.name}</h3>
               <p className="text-xs font-bold flex items-center gap-1 text-gray-400">
                 <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400 animate-pulse' : 'bg-red-500'}`}></span>
                 {isOnline ? 'Online' : 'Offline'}
               </p>
             </div>
+            {user && <NotificationBell userId={user.id} />}
           </div>
           <nav className="space-y-1 overflow-y-auto pb-10 custom-scrollbar">
             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2 mt-4">Main</p>

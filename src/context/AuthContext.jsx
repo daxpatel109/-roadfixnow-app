@@ -57,10 +57,11 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, portalType) => {
     // 1. Secure Hardcoded Admin Login
     if (email === 'admin@roadfixnow.com') {
       if (password === 'AdminSecure@2026') {
+        if (portalType !== 'admin') throw new Error("Access denied. Please use the Admin login portal.");
         const adminUser = {
           id: 'super-admin-001',
           email: email,
@@ -78,6 +79,29 @@ export function AuthProvider({ children }) {
     // 2. Normal Supabase Login
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    
+    // 3. Verify Portal Access
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
+
+    if (!userError && userData) {
+      if (portalType === 'partner' && userData.role !== 'mechanic') {
+        await supabase.auth.signOut();
+        throw new Error("Access denied. Please use the Customer login portal.");
+      }
+      if (portalType === 'customer' && userData.role !== 'customer') {
+        await supabase.auth.signOut();
+        throw new Error("Access denied. Please use the Partner login portal.");
+      }
+      if (portalType === 'admin' && userData.role !== 'admin') {
+        await supabase.auth.signOut();
+        throw new Error("Access denied. You are not an admin.");
+      }
+    }
+
     return data;
   };
 
@@ -98,7 +122,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const registerCustomer = async (email, password, fullName) => {
+  const registerCustomer = async (email, password, fullName, phone) => {
     // 1. Sign up the user
     const { data, error } = await supabase.auth.signUp({ 
       email, 
@@ -115,7 +139,7 @@ export function AuthProvider({ children }) {
     // 2. Add them to the users table as a customer
     if (data?.user) {
       const { error: dbError } = await supabase.from('users').insert([
-        { id: data.user.id, email: email, full_name: fullName, role: 'customer' }
+        { id: data.user.id, email: email, full_name: fullName, role: 'customer', phone }
       ]);
       if (dbError) throw dbError;
     }
@@ -123,7 +147,7 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const registerMechanic = async (email, password, fullName) => {
+  const registerMechanic = async (email, password, fullName, phone) => {
     // 1. Sign up the mechanic
     const { data, error } = await supabase.auth.signUp({ 
       email, 
@@ -140,7 +164,7 @@ export function AuthProvider({ children }) {
     // 2. Add them to the users table as a pending mechanic
     if (data?.user) {
       const { error: dbError } = await supabase.from('users').insert([
-        { id: data.user.id, email: email, full_name: fullName, role: 'mechanic', status: 'pending' }
+        { id: data.user.id, email: email, full_name: fullName, role: 'mechanic', status: 'pending', phone }
       ]);
       if (dbError) throw dbError;
     }

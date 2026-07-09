@@ -257,7 +257,10 @@ export default function Book() {
       });
       const order = await res.json();
       
-      if (!res.ok) throw new Error(order.error || 'Failed to create order');
+      if (!res.ok) {
+        setPaymentProcessing(false);
+        throw new Error(order.error || 'Failed to create order');
+      }
 
       // 2. Open Razorpay Checkout
       const options = {
@@ -270,6 +273,7 @@ export default function Book() {
         handler: async function (response) {
           // 3. Verify on backend
           try {
+            setPaymentProcessing(true); // Keep processing true while verifying
             const API_BASE = import.meta.env.VITE_API_URL || '';
             const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay-payment`, {
               method: 'POST',
@@ -284,13 +288,20 @@ export default function Book() {
             const verifyData = await verifyRes.json();
             
             if (verifyData.success) {
-              setStep(7); // Stay on checkout screen, it will refresh status
+              setDbRequest(prev => ({ ...prev, status: 'settlement_pending', payment_status: 'paid' }));
             } else {
               throw new Error(verifyData.error || 'Verification failed');
             }
           } catch (err) {
             console.error(err);
             setError('Payment verification failed. If money was deducted, it will be refunded.');
+          } finally {
+            setPaymentProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            setPaymentProcessing(false);
           }
         },
         prefill: {
@@ -307,13 +318,13 @@ export default function Book() {
       rzp1.on('payment.failed', function (response){
         console.error(response.error);
         setError(`Payment Failed: ${response.error.description}`);
+        setPaymentProcessing(false);
       });
       rzp1.open();
 
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to initiate payment. Please try again.');
-    } finally {
       setPaymentProcessing(false);
     }
   };
@@ -366,11 +377,28 @@ export default function Book() {
     }
 
     if (newData.status === 'accepted' && step !== 6 && step !== 7 && step !== 5) {
-      // Create initial mechanic state, distance will auto-update via Broadcast
-      setMechanic({ 
-        name: newData.mechanic_name || 'Verified Mechanic', 
-        rating: '4.8', dist: 'Calculating...', time: '14 min', price: '₹149' 
-      });
+      // Async fetch the mechanic's details securely
+      const fetchMechanicDetails = async () => {
+        const { data: contactData } = await supabase.rpc('get_assigned_contact_info', {
+          p_request_id: newData.id
+        });
+        
+        let mechanicPhone = null;
+        let mechanicName = newData.mechanic_name || 'Verified Mechanic';
+
+        if (contactData && contactData.length > 0) {
+          mechanicName = contactData[0].name || mechanicName;
+          mechanicPhone = contactData[0].phone;
+        }
+
+        setMechanic({ 
+          name: mechanicName,
+          phone: mechanicPhone,
+          rating: '4.8', dist: 'Calculating...', time: '14 min', price: '₹' + (newData.amount || 149) 
+        });
+      };
+      
+      fetchMechanicDetails();
       setStep(5); // Show Estimate
     }
   };
@@ -495,9 +523,12 @@ export default function Book() {
                 <div className="w-12 h-12 bg-orange flex items-center justify-center rounded-full font-black text-navy text-xl">
                   {mechanic.name.charAt(0)}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-bold text-white">{mechanic.name}</h3>
                   <p className="text-sm text-yellow-400 font-bold">{mechanic.rating} ★ <span className="text-gray-400 font-normal">({mechanic.dist})</span></p>
+                  {mechanic.phone && (
+                    <p className="text-xs text-orange mt-1 font-bold tracking-widest">{mechanic.phone}</p>
+                  )}
                 </div>
               </div>
 

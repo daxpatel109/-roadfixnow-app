@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { notificationService } from '../../services/notificationService';
 
 const MechanicContext = createContext();
 
@@ -85,6 +86,10 @@ export function MechanicProvider({ children }) {
         .channel('public:dispatch_attempts')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatch_attempts', filter: `mechanic_id=eq.${user?.id}` }, 
           (payload) => {
+            if (payload.eventType === 'INSERT') {
+              notificationService.playBeep();
+              notificationService.showBrowserNotification('New RoadFixNow job', 'A customer near you needs roadside assistance.');
+            }
             fetchRequests();
           }
         )
@@ -188,7 +193,18 @@ export function MechanicProvider({ children }) {
         return;
       }
 
-      setActiveJob(job);
+      // Fetch customer contact info
+      const { data: contactData } = await supabase.rpc('get_assigned_contact_info', {
+        p_request_id: job.id
+      });
+      
+      let enrichedJob = { ...job };
+      if (contactData && contactData.length > 0) {
+        enrichedJob.customer = contactData[0].name || job.customer;
+        enrichedJob.customerPhone = contactData[0].phone;
+      }
+
+      setActiveJob(enrichedJob);
       setJobStatus(0);
       setRequests(requests.filter(r => r.id !== job.id));
     } catch (err) {

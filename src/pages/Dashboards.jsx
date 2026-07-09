@@ -267,6 +267,9 @@ export function CustomerDashboard() {
                 {item}
               </button>
             ))}
+            <button onClick={handleLogout} className="md:hidden whitespace-nowrap flex items-center gap-2 text-gray-400 hover:text-red-400 hover:bg-white/5 transition font-bold px-4 py-3 rounded-xl">
+              <LogOut size={16} /> Logout
+            </button>
           </nav>
         </div>
         <button onClick={handleLogout} className="hidden md:flex items-center gap-2 text-gray-500 hover:text-red-400 transition font-bold px-4 py-2 mt-8">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react';
+import { ShieldAlert, Mail, Lock, User, Loader2, ArrowRight, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -12,6 +12,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   
@@ -51,12 +52,19 @@ export default function Login() {
         }
       } else {
         if (isLogin) {
-          await login(email, password);
+          await login(email, password, portalType);
         } else {
+          // Phone Validation
+          const normalizedPhone = phone.replace(/\D/g, '');
+          if (!/^[6-9]\d{9}$/.test(normalizedPhone)) {
+            throw new Error("Invalid Indian mobile number. Must be 10 digits starting with 6, 7, 8, or 9.");
+          }
+          const finalPhone = `+91${normalizedPhone}`;
+
           if (portalType === 'partner') {
-            await registerMechanic(email, password, fullName);
+            await registerMechanic(email, password, fullName, finalPhone);
           } else {
-            await registerCustomer(email, password, fullName);
+            await registerCustomer(email, password, fullName, finalPhone);
           }
         }
       }
@@ -164,13 +172,22 @@ export default function Login() {
             ) : (
               <>
                 {!isLogin && (
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                      <input type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-orange focus:bg-black/60 outline-none transition" />
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                        <input type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-orange focus:bg-black/60 outline-none transition" />
+                      </div>
                     </div>
-                  </div>
+                    <div className="mt-4">
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Phone Number</label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                        <input type="tel" placeholder="9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} required className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-orange focus:bg-black/60 outline-none transition" />
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div>

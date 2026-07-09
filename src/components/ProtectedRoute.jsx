@@ -10,12 +10,12 @@ const FullScreenLoader = () => (
 );
 
 export function CustomerRoute({ children }) {
-  const { user, role, loading } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return <FullScreenLoader />;
 
-  if (!user || role !== 'customer') {
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { Menu, X, ShieldAlert } from 'lucide-react';
 import Home from './pages/Home';
 import Book from './pages/Book';
@@ -9,6 +9,7 @@ import Login from './pages/Login'; // Will rename/split later
 import { AuthProvider } from './context/AuthContext';
 import 'leaflet/dist/leaflet.css';
 import { CustomerRoute, PartnerRoute, AdminRoute } from './components/ProtectedRoute';
+import NotificationBell from './components/NotificationBell';
 
 import { 
   MechanicProvider, MechanicLayout, MechanicOverview, MechanicRequests, 
@@ -38,7 +39,10 @@ import { useAuth } from './context/AuthContext';
 function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, role, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  const dashboardPath = role === 'admin' ? '/dashboard/admin' : role === 'mechanic' ? '/dashboard/mechanic' : '/dashboard/customer';
   
   const initial = user?.user_metadata?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
 
@@ -71,14 +75,24 @@ function Navbar() {
           
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <Link to="/dashboard/customer" className="flex items-center gap-2 group transition-all mr-2">
-                <div className="w-9 h-9 bg-orange rounded-full flex items-center justify-center font-black text-navy text-sm shadow-[0_0_15px_rgba(255,107,0,0.4)] group-hover:scale-105 transition-transform">
-                  {initial}
-                </div>
-                <span className="font-bold text-sm text-white group-hover:text-orange transition-colors hidden lg:block">
-                  {user.user_metadata?.full_name?.split(' ')[0] || 'Dashboard'}
-                </span>
-              </Link>
+              <div className="flex items-center gap-4">
+                <NotificationBell userId={user.id} />
+                <Link to={dashboardPath} className="flex items-center gap-2 group transition-all mr-2">
+                  <div className="w-9 h-9 bg-orange rounded-full flex items-center justify-center font-black text-navy text-sm shadow-[0_0_15px_rgba(255,107,0,0.4)] group-hover:scale-105 transition-transform">
+                    {initial}
+                  </div>
+                  <span className="font-bold text-sm text-white group-hover:text-orange transition-colors hidden lg:block">
+                    {user.user_metadata?.full_name?.split(' ')[0] || 'Dashboard'}
+                  </span>
+                </Link>
+                <button 
+                  onClick={async () => { await logout(); navigate('/login'); }} 
+                  className="text-gray-400 hover:text-red-400 transition"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
             ) : (
               <Link to="/login" className="text-gray-300 hover:text-white font-bold text-sm transition-colors">Sign In</Link>
             )}
