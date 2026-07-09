@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
-import { Menu, X, ShieldAlert } from 'lucide-react';
+import { Menu, X, ShieldAlert, LogOut } from 'lucide-react';
 import Home from './pages/Home';
 import Book from './pages/Book';
 import { CustomerDashboard } from './pages/Dashboards';
