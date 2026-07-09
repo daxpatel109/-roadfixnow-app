@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 export function MechanicEarnings() {
   const { user } = useAuth();
   const [stats, setStats] = useState({ totalEarned: 0, avg: 0 });
+  const [transactions, setTransactions] = useState([]);
   const [chartData, setChartData] = useState([
     { name: 'Sun', earn: 0 }, { name: 'Mon', earn: 0 }, { name: 'Tue', earn: 0 }, 
     { name: 'Wed', earn: 0 }, { name: 'Thu', earn: 0 }, { name: 'Fri', earn: 0 }, { name: 'Sat', earn: 0 }
