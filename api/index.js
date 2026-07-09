@@ -104,7 +104,6 @@ app.post('/api/verify-razorpay-payment', async (req, res) => {
     }).eq('id', payment.id);
 
     await supabase.from('repair_requests').update({
-      payment_status: 'paid',
       status: 'settlement_pending'
     }).eq('id', repair_request_id);
 
@@ -158,7 +157,6 @@ app.post('/api/razorpay-webhook', async (req, res) => {
         }).eq('id', payment.id);
 
         await supabase.from('repair_requests').update({
-          payment_status: 'paid',
           status: 'settlement_pending'
         }).eq('id', payment.repair_request_id);
 
