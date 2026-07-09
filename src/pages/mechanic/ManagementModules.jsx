@@ -5,20 +5,15 @@ import { IndianRupee, CheckCircle2, Wrench, FileText, ToggleLeft, ToggleRight } 
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
-const weeklyEarnings = [
-  { name: 'Mon', earn: 800 },
-  { name: 'Tue', earn: 1200 },
-  { name: 'Wed', earn: 1500 },
-  { name: 'Thu', earn: 900 },
-  { name: 'Fri', earn: 2100 },
-  { name: 'Sat', earn: 2450 },
-  { name: 'Sun', earn: 1800 },
-];
+// Chart data now generated dynamically
 
 export function MechanicEarnings() {
   const { user } = useAuth();
   const [stats, setStats] = useState({ totalEarned: 0, avg: 0 });
-  const [transactions, setTransactions] = useState([]);
+  const [chartData, setChartData] = useState([
+    { name: 'Sun', earn: 0 }, { name: 'Mon', earn: 0 }, { name: 'Tue', earn: 0 }, 
+    { name: 'Wed', earn: 0 }, { name: 'Thu', earn: 0 }, { name: 'Fri', earn: 0 }, { name: 'Sat', earn: 0 }
+  ]);
 
   useEffect(() => {
     async function fetchEarnings() {
@@ -34,6 +29,21 @@ export function MechanicEarnings() {
         const total = data.reduce((sum, job) => sum + (job.amount || 150), 0);
         setStats({ totalEarned: total, avg: Math.round(total / data.length) });
         setTransactions(data);
+
+        // Generate weekly trend chart data based on transactions
+        const newChart = [
+          { name: 'Sun', earn: 0 }, { name: 'Mon', earn: 0 }, { name: 'Tue', earn: 0 }, 
+          { name: 'Wed', earn: 0 }, { name: 'Thu', earn: 0 }, { name: 'Fri', earn: 0 }, { name: 'Sat', earn: 0 }
+        ];
+        data.forEach(job => {
+          const date = new Date(job.created_at);
+          const dayIndex = date.getDay();
+          const earning = Math.round((job.amount || 150) * 0.85); // Platform fee 15%
+          newChart[dayIndex].earn += earning;
+        });
+        // Shift array so Monday is first
+        const shiftedChart = [...newChart.slice(1), newChart[0]];
+        setChartData(shiftedChart);
       }
     }
     fetchEarnings();
@@ -65,7 +75,7 @@ export function MechanicEarnings() {
         <h3 className="font-bold text-white mb-6">Weekly Trend</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyEarnings}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="name" stroke="#888" />
               <YAxis stroke="#888" />
@@ -125,17 +135,32 @@ export function MechanicPlaceholder({ title, description }) {
 
 export function MechanicProfile() {
   const { partnerType } = useMechanic();
-  
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!user) return;
+      const { data } = await supabase.from('users').select('*').eq('id', user.id).single();
+      if (data) setProfile(data);
+    }
+    fetchProfile();
+  }, [user]);
+
+  const shopName = profile?.shop_name || profile?.full_name || 'Partner Garage';
+  const phone = profile?.phone || 'Not provided';
+  const initial = shopName.charAt(0).toUpperCase();
+
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-3xl font-black text-white mb-8">Profile & Verification</h1>
       
       <div className="bg-[#050810] border border-white/10 rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center md:items-start gap-8">
-        <div className="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center font-black text-white text-5xl border-4 border-navy">{partnerType.name.charAt(0)}</div>
+        <div className="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center font-black text-white text-5xl border-4 border-navy">{initial}</div>
         <div className="flex-1 text-center md:text-left">
           <div className="inline-block px-3 py-1 bg-white/10 text-white rounded-full text-xs font-bold uppercase tracking-widest mb-3 border border-white/20">{partnerType.name}</div>
-          <h2 className="text-3xl font-black text-white mb-2">Ramesh Garage</h2>
-          <p className="text-gray-400 mb-6">Gandhinagar, Gujarat • +91 98765 43210</p>
+          <h2 className="text-3xl font-black text-white mb-2">{shopName}</h2>
+          <p className="text-gray-400 mb-6">{profile?.email} • {phone}</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-3">
             <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-xl text-sm font-bold border border-green-500/30"><CheckCircle2 size={16}/> Identity Verified</span>
             <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-xl text-sm font-bold border border-green-500/30"><CheckCircle2 size={16}/> Skills Verified</span>

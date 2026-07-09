@@ -147,7 +147,7 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const registerMechanic = async (email, password, fullName, phone) => {
+  const registerMechanic = async (email, password, fullName, phone, shopName) => {
     // 1. Sign up the mechanic
     const { data, error } = await supabase.auth.signUp({ 
       email, 
@@ -164,7 +164,7 @@ export function AuthProvider({ children }) {
     // 2. Add them to the users table as a pending mechanic
     if (data?.user) {
       const { error: dbError } = await supabase.from('users').insert([
-        { id: data.user.id, email: email, full_name: fullName, role: 'mechanic', status: 'pending', phone }
+        { id: data.user.id, email: email, full_name: fullName, role: 'mechanic', status: 'pending', phone, shop_name: shopName }
       ]);
       if (dbError) throw dbError;
     }

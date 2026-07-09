@@ -1,14 +1,20 @@
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMechanic, mechanicTypes } from './MechanicState';
-import { Home, List, Navigation2, IndianRupee, User, Menu } from 'lucide-react';
+import { Home, List, Navigation2, IndianRupee, User, Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/NotificationBell';
 
 export default function MechanicLayout() {
   const { partnerType, setPartnerType, isOnline } = useMechanic();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const navItems = [
     { name: 'Overview', path: '/dashboard/mechanic', icon: <Home/> },
@@ -72,6 +78,9 @@ export default function MechanicLayout() {
                 {item.name}
               </Link>
             ))}
+            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2 mt-4 rounded-xl font-bold transition-all text-sm text-gray-400 hover:bg-red-500/10 hover:text-red-400 w-full text-left">
+              <LogOut size={16} /> Logout securely
+            </button>
           </nav>
         </div>
 
@@ -88,6 +97,10 @@ export default function MechanicLayout() {
               <span className="text-[10px] font-bold">{item.name}</span>
             </Link>
           ))}
+          <button onClick={handleLogout} className="flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 hover:text-red-400">
+            <LogOut size={20} />
+            <span className="text-[10px] font-bold">Logout</span>
+          </button>
         </div>
       </div>
     </div>

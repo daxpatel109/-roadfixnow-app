@@ -22,7 +22,7 @@ export function MechanicOverview() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState({ earnings: 0, completed: 0, rating: 4.8, acceptance: 94 });
+  const [stats, setStats] = useState({ earnings: 0, completed: 0, rating: 'New', acceptance: 0 });
   const [alertsEnabled, setAlertsEnabled] = useState(false);
 
   useEffect(() => {
@@ -42,16 +42,39 @@ export function MechanicOverview() {
   useEffect(() => {
     async function fetchStats() {
       if (!user) return;
-      const { data } = await supabase
+      
+      // 1. Fetch completed jobs & earnings
+      const { data: jobData } = await supabase
         .from('repair_requests')
         .select('amount')
         .eq('mechanic_id', user.id)
         .eq('status', 'completed');
       
-      if (data) {
-        const totalEarned = data.reduce((sum, job) => sum + (job.amount || 150), 0); // fallback 150 if amount is null
-        setStats(prev => ({ ...prev, earnings: totalEarned, completed: data.length }));
+      let totalEarned = 0;
+      let completedJobs = 0;
+      if (jobData) {
+        totalEarned = jobData.reduce((sum, job) => sum + (job.amount || 150), 0);
+        completedJobs = jobData.length;
       }
+
+      // 2. Fetch dispatch stats for acceptance rate
+      const { data: dispatchData } = await supabase
+        .from('dispatch_attempts')
+        .select('status')
+        .eq('mechanic_id', user.id);
+      
+      let acceptanceRate = 0;
+      if (dispatchData && dispatchData.length > 0) {
+        const accepted = dispatchData.filter(d => d.status === 'accepted').length;
+        acceptanceRate = Math.round((accepted / dispatchData.length) * 100);
+      } else {
+        acceptanceRate = 100; // default for new
+      }
+
+      // 3. Optional: Real rating logic could be fetched here. For now, 5.0 for active, 'New' for 0 jobs.
+      const displayRating = completedJobs > 0 ? 5.0 : 'N/A';
+
+      setStats({ earnings: totalEarned, completed: completedJobs, rating: displayRating, acceptance: acceptanceRate });
     }
     fetchStats();
   }, [user]);
@@ -128,8 +151,8 @@ export function MechanicOverview() {
           <p className="text-gray-400 text-xs font-bold uppercase mb-1">Rating</p>
           <p className="text-3xl font-black text-yellow-400">{stats.rating}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-          <p className="text-gray-400 text-xs font-bold uppercase mb-1">Acceptance Rate</p>
+        <div className="bg-[#050810] border border-white/10 p-6 rounded-3xl">
+          <p className="text-gray-400 text-xs font-bold uppercase mb-2">Acceptance Rate</p>
           <p className="text-3xl font-black text-white">{stats.acceptance}%</p>
         </div>
       </div>

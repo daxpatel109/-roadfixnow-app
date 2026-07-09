@@ -13,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [shopName, setShopName] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   
@@ -62,7 +63,7 @@ export default function Login() {
           const finalPhone = `+91${normalizedPhone}`;
 
           if (portalType === 'partner') {
-            await registerMechanic(email, password, fullName, finalPhone);
+            await registerMechanic(email, password, fullName, finalPhone, shopName);
           } else {
             await registerCustomer(email, password, fullName, finalPhone);
           }
@@ -187,6 +188,15 @@ export default function Login() {
                         <input type="tel" placeholder="9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} required className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-orange focus:bg-black/60 outline-none transition" />
                       </div>
                     </div>
+                    {portalType === 'partner' && (
+                      <div className="mt-4">
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Shop/Garage Name</label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                          <input type="text" placeholder="Ramesh Garage" value={shopName} onChange={(e) => setShopName(e.target.value)} required className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-orange focus:bg-black/60 outline-none transition" />
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
