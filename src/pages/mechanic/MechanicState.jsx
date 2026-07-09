@@ -95,6 +95,20 @@ export function MechanicProvider({ children }) {
         )
         .subscribe();
 
+      const jobSubscription = supabase
+        .channel('public:repair_requests')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'repair_requests', filter: `mechanic_id=eq.${user?.id}` }, 
+          (payload) => {
+            setActiveJob(prev => {
+              if (prev && prev.id === payload.new.id) {
+                return { ...prev, ...payload.new };
+              }
+              return prev;
+            });
+          }
+        )
+        .subscribe();
+
       // If handling an active job, start broadcasting GPS
       if (activeJob) {
         trackingChannel = supabase.channel(`tracking_${activeJob.id}`);
@@ -118,6 +132,7 @@ export function MechanicProvider({ children }) {
 
       return () => {
         supabase.removeChannel(subscription);
+        supabase.removeChannel(jobSubscription);
         if (watchId) navigator.geolocation.clearWatch(watchId);
         if (trackingChannel) supabase.removeChannel(trackingChannel);
       };
