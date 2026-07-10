@@ -10,6 +10,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5000000 // 5MB to accommodate three.js
+      },
       manifest: {
         name: 'RoadFixNow',
         short_name: 'RoadFix',
