@@ -56,22 +56,27 @@ function Interactive3DHero() {
           animate={{ y: [-10, 10, -10] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
-          <img 
-            src="/tata-yellow.png" 
-            alt="Rescue Vehicle" 
-            className="w-[90%] md:w-[80%] object-contain drop-shadow-[0_30px_30px_rgba(255,107,0,0.3)] brightness-110 contrast-125 saturate-150"
-          />
+          <div className="relative w-[90%] md:w-[80%]">
+            <img 
+              src="/tata-yellow.png" 
+              alt="Rescue Vehicle" 
+              className="w-full object-contain drop-shadow-[0_20px_30px_rgba(255,107,0,0.4)] brightness-110 contrast-125 saturate-150"
+            />
+            {/* Gradient mask to hide bottom clipping if the image has cropped tires */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#03050a] to-transparent mix-blend-overlay"></div>
+          </div>
         </motion.div>
 
         {/* Dynamic Glowing Rings */}
+        {/* Dynamic Glowing Rings */}
         <motion.div 
-          style={{ translateZ: -20, rotateX: "70deg" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full border-[2px] border-orange/30 shadow-[0_0_50px_rgba(255,107,0,0.2)]"
+          style={{ translateZ: -20, rotateX: "70deg", x: "-50%", y: "-50%" }}
+          className="absolute top-1/2 left-1/2 w-[350px] h-[350px] rounded-full border-[2px] border-orange/30 shadow-[0_0_50px_rgba(255,107,0,0.2)]"
           animate={{ rotateZ: 360, scale: [1, 1.05, 1] }}
           transition={{ rotateZ: { duration: 15, repeat: Infinity, ease: "linear" }, scale: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
         >
           {/* Orbiting Tech Node */}
-          <div className="absolute top-0 left-1/2 w-4 h-4 bg-yellow-400 rounded-full shadow-[0_0_15px_#facc15] -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute top-0 left-1/2 w-4 h-4 bg-yellow-400 rounded-full shadow-[0_0_15px_#facc15]" style={{ transform: 'translate(-50%, -50%)' }} />
         </motion.div>
         
         {/* Radar Ping Overlay */}
@@ -173,9 +178,9 @@ export default function Home() {
               India's #1 On-Demand Roadside Assistance
             </div>
             
-            <h1 className="text-6xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.1] mb-8 tracking-tighter">
+            <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-black text-white leading-[1.1] mb-8 tracking-tighter">
               Roadside help <br/> reaches you <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange via-yellow-500 to-red-500 drop-shadow-lg">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange via-yellow-500 to-red-500 drop-shadow-lg pb-2 inline-block">
                 before panic does.
               </span>
             </h1>
