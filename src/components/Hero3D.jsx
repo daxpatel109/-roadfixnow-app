@@ -48,9 +48,9 @@ export default function Interactive3DHero() {
       <div className="absolute inset-x-0 bottom-10 h-48 bg-gradient-to-t from-orange/10 to-transparent blur-3xl rounded-full mix-blend-screen pointer-events-none" />
       
       {/* WebGL Canvas */}
-      <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing">
-        {/* Adjusted camera to bring the car closer while maintaining a wide enough FOV to prevent rotation clipping */}
-        <Canvas camera={{ position: [4, 1.5, 6], fov: 45 }} shadows>
+      {/* Expanded canvas width negatively to allow the huge car to render without cutting edges */}
+      <div className="absolute -inset-x-12 md:-inset-x-24 inset-y-0 z-10 cursor-grab active:cursor-grabbing overflow-visible">
+        <Canvas camera={{ position: [4.5, 1.8, 6.5], fov: 45 }} shadows>
           {/* Lighting for Black Edition */}
           <ambientLight intensity={0.4} />
           <spotLight position={[10, 10, 10]} angle={0.2} penumbra={1} intensity={2} color="#ffffff" castShadow shadow-mapSize={1024} />
