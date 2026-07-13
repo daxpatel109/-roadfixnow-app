@@ -35,7 +35,7 @@ function CarModel() {
     });
   }, [scene]);
 
-  return <primitive object={scene} scale={1.2} position={[0, -1, 0]} />;
+  return <primitive object={scene} scale={1.2} position={[0, -0.2, 0]} />;
 }
 
 export default function Interactive3DHero() {
@@ -61,7 +61,7 @@ export default function Interactive3DHero() {
               <CarModel />
             </Float>
             {/* Dark contact shadow below the car */}
-            <ContactShadows position={[0, -1.2, 0]} opacity={0.8} scale={10} blur={2.5} far={4} color="#000000" />
+            <ContactShadows position={[0, -0.4, 0]} opacity={0.8} scale={10} blur={2.5} far={4} color="#000000" />
           </Suspense>
 
           <OrbitControls 
