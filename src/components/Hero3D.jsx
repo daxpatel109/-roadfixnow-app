@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Environment, ContactShadows, Float, Html, useProgress } from '@react-three/drei';
 
 // Preload the optimized car model
-useGLTF.preload('/car_optimized.glb');
+useGLTF.preload('/car.glb');
 
 function Loader() {
   const { progress } = useProgress();
@@ -20,7 +20,7 @@ function Loader() {
 }
 
 function CarModel() {
-  const { scene } = useGLTF('/car_optimized.glb');
+  const { scene } = useGLTF('/car.glb');
   
   // Make sure the materials look dark and glossy for "Black Edition"
   useEffect(() => {
