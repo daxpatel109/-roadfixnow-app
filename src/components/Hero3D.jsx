@@ -36,8 +36,8 @@ function CarModel() {
   }, [scene]);
 
   // Rotate the car so the front grille faces the user (roughly 180 degrees or Math.PI)
-  // Decrease scale slightly so the car doesn't get cut off at the edges of the box when rotating
-  return <primitive object={scene} scale={0.9} position={[0, -0.2, 0]} rotation={[0, 3.8, 0]} />;
+  // Increase scale to 1.3 to make it look large and premium, while using FOV to prevent clipping
+  return <primitive object={scene} scale={1.3} position={[0, -0.4, 0]} rotation={[0, 3.8, 0]} />;
 }
 
 export default function Interactive3DHero() {
@@ -49,8 +49,8 @@ export default function Interactive3DHero() {
       
       {/* WebGL Canvas */}
       <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing">
-        {/* Adjusted camera to be further back so the car fits perfectly in the "box" without clipping */}
-        <Canvas camera={{ position: [5, 2, 7.5], fov: 40 }} shadows>
+        {/* Adjusted camera to bring the car closer while maintaining a wide enough FOV to prevent rotation clipping */}
+        <Canvas camera={{ position: [4, 1.5, 6], fov: 45 }} shadows>
           {/* Lighting for Black Edition */}
           <ambientLight intensity={0.4} />
           <spotLight position={[10, 10, 10]} angle={0.2} penumbra={1} intensity={2} color="#ffffff" castShadow shadow-mapSize={1024} />
