@@ -35,7 +35,9 @@ function CarModel() {
     });
   }, [scene]);
 
-  return <primitive object={scene} scale={1.2} position={[0, -0.2, 0]} />;
+  // Rotate the car so the front grille faces the user (roughly 180 degrees or Math.PI)
+  // We'll use 3.8 radians to show a nice 3/4 front angle
+  return <primitive object={scene} scale={1.2} position={[0, -0.2, 0]} rotation={[0, 3.8, 0]} />;
 }
 
 export default function Interactive3DHero() {
@@ -47,7 +49,8 @@ export default function Interactive3DHero() {
       
       {/* WebGL Canvas */}
       <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing">
-        <Canvas camera={{ position: [5, 2.5, 6], fov: 40 }} shadows>
+        {/* Adjusted camera to be slightly lower and closer so the car feels bigger and more aligned */}
+        <Canvas camera={{ position: [4, 1.5, 5.5], fov: 40 }} shadows>
           {/* Lighting for Black Edition */}
           <ambientLight intensity={0.4} />
           <spotLight position={[10, 10, 10]} angle={0.2} penumbra={1} intensity={2} color="#ffffff" castShadow shadow-mapSize={1024} />
