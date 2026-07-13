@@ -37,7 +37,7 @@ function CarModel() {
 
   // Rotate the car so the front grille faces the user (roughly 180 degrees or Math.PI)
   // Increase scale to 1.3 to make it look large and premium, while using FOV to prevent clipping
-  return <primitive object={scene} scale={1.3} position={[0, -0.4, 0]} rotation={[0, 3.8, 0]} />;
+  return <primitive object={scene} scale={1.3} position={[0, -0.0, 0]} rotation={[0, 3.8, 0]} />;
 }
 
 export default function Interactive3DHero() {
@@ -64,7 +64,7 @@ export default function Interactive3DHero() {
               <CarModel />
             </Float>
             {/* Dark contact shadow below the car */}
-            <ContactShadows position={[0, -0.4, 0]} opacity={0.8} scale={10} blur={2.5} far={4} color="#000000" />
+            <ContactShadows position={[0, -0.0, 0]} opacity={0.8} scale={10} blur={2.5} far={4} color="#000000" />
           </Suspense>
 
           <OrbitControls 
